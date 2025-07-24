@@ -1,0 +1,7 @@
+services:
+  - type: web
+    name: youtube-mp3-api
+    env: python
+    buildCommand: ""
+    startCommand: "python main.py"
+    plan: free

@@ -6,34 +6,43 @@ app = Flask(__name__)
 
 @app.route('/')
 def home():
-    return "YouTube to MP3 API is running"
+    return "✅ Melosh YouTube to MP3 API is online and working."
 
 @app.route('/mp3')
 def mp3():
     url = request.args.get('url')
+    user_filename = request.args.get('filename', 'download')
+
     if not url:
-        return 'Missing URL', 400
+        return '❌ Missing "url" parameter', 400
+
+    safe_filename = ''.join(c for c in user_filename if c.isalnum() or c in (' ', '-', '_')).rstrip()
 
     ydl_opts = {
         'format': 'bestaudio/best',
-        'outtmpl': 'download.%(ext)s',
-        'cookies': os.path.join(os.path.dirname(__file__), 'yt_cookies.txt'),  # ✅ Using your new cookie file
+        'outtmpl': f'{safe_filename}.%(ext)s',
+        'cookiefile': 'youtube.com_cookies.txt',
+        'quiet': True,
+        'noplaylist': True,
+        'nocheckcertificate': True,
         'postprocessors': [{
             'key': 'FFmpegExtractAudio',
             'preferredcodec': 'mp3',
             'preferredquality': '192',
         }],
+        'http_headers': {
+            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64)',
+            'Accept-Language': 'en-US,en;q=0.9',
+        },
     }
 
     try:
         with yt_dlp.YoutubeDL(ydl_opts) as ydl:
-            info = ydl.extract_info(url, download=True)
-            filename = ydl.prepare_filename(info).rsplit('.', 1)[0] + '.mp3'
-
-        return send_file(filename, as_attachment=True)
-
+            ydl.extract_info(url, download=True)
+        output_file = f"{safe_filename}.mp3"
+        return send_file(output_file, as_attachment=True)
     except Exception as e:
-        return f'Error: {str(e)}', 500  # ✅ Fixed f-string and return tuple
+        return f'❌ Download failed: {str(e)}', 500
 
 if __name__ == '__main__':
     port = int(os.environ.get("PORT", 10000))

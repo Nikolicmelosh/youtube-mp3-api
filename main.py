@@ -17,7 +17,7 @@ def mp3():
     ydl_opts = {
         'format': 'bestaudio/best',
         'outtmpl': 'download.%(ext)s',
-        'cookies': os.path.join(os.path.dirname(__file__), 'youtube.com_cookies.txt'),  # ✅ important
+        'cookies': os.path.join(os.path.dirname(__file__), 'yt_cookies.txt'),  # ✅ Use new cookie file
         'postprocessors': [{
             'key': 'FFmpegExtractAudio',
             'preferredcodec': 'mp3',
@@ -33,7 +33,7 @@ def mp3():
         return send_file(filename, as_attachment=True)
 
     except Exception as e:
-        return f'Error: {str(e)}', 500
+        return f'Error: {str(e)}", 500
 
 if __name__ == '__main__':
     port = int(os.environ.get("PORT", 10000))

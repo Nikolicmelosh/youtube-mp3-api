@@ -17,7 +17,7 @@ def mp3():
     ydl_opts = {
         'format': 'bestaudio/best',
         'outtmpl': 'download.%(ext)s',
-        'cookies': 'youtube.com_cookies.txt',
+        'cookies': os.path.join(os.path.dirname(__file__), 'youtube.com_cookies.txt'),  # ✅ important
         'postprocessors': [{
             'key': 'FFmpegExtractAudio',
             'preferredcodec': 'mp3',
@@ -29,8 +29,9 @@ def mp3():
         with yt_dlp.YoutubeDL(ydl_opts) as ydl:
             info = ydl.extract_info(url, download=True)
             filename = ydl.prepare_filename(info).rsplit('.', 1)[0] + '.mp3'
-        
+
         return send_file(filename, as_attachment=True)
+
     except Exception as e:
         return f'Error: {str(e)}', 500
 
